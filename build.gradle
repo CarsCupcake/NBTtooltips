@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.7.1'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -16,6 +16,7 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	mavenCentral()
 }
 
 dependencies {
@@ -28,10 +29,16 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
-processResources {
-	inputs.property "version", project.version
+fabricApi {
+	configureDataGeneration {
+		client = true
+	}
+}
 
-	filesMatching("fabric.mod.json") {
+processResources {
+	inputs.property "version" as String, project.version
+
+	filesMatching("fabric.mod.json" as Iterable<String>) {
 		expand "version": project.version
 	}
 }
@@ -70,3 +77,4 @@ publishing {
 		// retrieving dependencies.
 	}
 }
+

@@ -1,5 +1,7 @@
 package net.mision_thi.nbttooltips.tooltips;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.component.ComponentChanges;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
@@ -8,14 +10,20 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntryOwner;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.mision_thi.nbttooltips.NBTtooltipsMod;
 import net.mision_thi.nbttooltips.config.ModConfigs;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.util.*;
+import java.util.List;
 
 import static net.mision_thi.nbttooltips.NBTtooltipsMod.client;
 
@@ -43,6 +51,8 @@ public class TooltipChanger {
 
     });
 
+    private static String lastCopied = "";
+
     public static void Main(ItemStack itemStack, List<Text> list) {
 
         /*
@@ -60,6 +70,21 @@ public class TooltipChanger {
         builder.append(Text.translatable("item.nbt_tags.nbttooltips").formatted(Formatting.DARK_GRAY));
         builder.buildElement(ComponentChanges.CODEC.encodeStart(NBT_OPS_UNLIMITED, itemStack.getComponentChanges()).getOrThrow());
         list.addAll(index, builder.build());
+        int code = InputUtil.fromTranslationKey(NBTtooltipsMod.KEYBIND_COPY.getBoundKeyTranslationKey()).getCode();
+        if (InputUtil.isKeyPressed(client.getWindow().getHandle(), code)) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (var single : list) {
+                    stringBuilder.append(single.getString()).append("\r\n");
+            }
+            var out = stringBuilder.toString();
+            if (!lastCopied.equals(out)) {
+                lastCopied = out;
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(new StringSelection(out), null);
+                assert MinecraftClient.getInstance().player != null;
+                MinecraftClient.getInstance().player.sendMessage(Text.literal("§aCopied to clipboard!"), false);
+            }
+        }
     }
 
     /**

@@ -53,6 +53,6 @@ public class ModConfigs {
         FIELD_COLOUR = CONFIG.getOrDefault("nbttooltips.fieldColour", "aqua");
         LSTRING_COLOUR = CONFIG.getOrDefault("nbttooltips.lstringColour", "yellow");
 
-        LOGGER.info("All " + configs.getConfigsList().size() + " have been assigned properly");
+        LOGGER.info("All {} have been assigned properly", configs.getConfigsList().size());
     }
 }
