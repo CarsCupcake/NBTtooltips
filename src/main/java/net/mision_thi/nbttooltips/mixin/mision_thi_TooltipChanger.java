@@ -45,8 +45,13 @@ public abstract class mision_thi_TooltipChanger {
 				Before calling the main method from the `tooltip changer` class.
 				We check if the item even has custom NBT.
 			 */
-			if (!itemStack.getComponentChanges().isEmpty()) {
-				TooltipChanger.Main(itemStack, info.getReturnValue());
+			if (!itemStack.getComponents().isEmpty()) {
+				try {
+					TooltipChanger.Main(itemStack, info.getReturnValue());
+				} catch (Exception e) {
+					System.out.println("Ann error occured while reading tooltip");
+					e.printStackTrace(System.err);
+				}
 			}
 
 		}
