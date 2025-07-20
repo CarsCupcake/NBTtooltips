@@ -34,8 +34,7 @@ public class CopyNpcCommand {
         var player = (PlayerEntity)  entity;
         var jsonElement = new PropertyMap.Serializer().serialize(player.getGameProfile().getProperties(), null, null);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(new StringSelection(gson.toJson(jsonElement)), null);
+        MinecraftClient.getInstance().keyboard.setClipboard(gson.toJson(jsonElement));
         assert MinecraftClient.getInstance().player != null;
         MinecraftClient.getInstance().player.sendMessage(Text.literal("§aCopied to clipboard!"), false);
         return 0;

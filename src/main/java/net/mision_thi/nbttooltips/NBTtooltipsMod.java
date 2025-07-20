@@ -1,5 +1,6 @@
 package net.mision_thi.nbttooltips;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.ModInitializer;
@@ -12,6 +13,8 @@ import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.server.command.CommandManager;
+import net.mision_thi.nbttooltips.commands.CopyArmorStandCommand;
+import net.mision_thi.nbttooltips.commands.CopyNpcCommand;
 import net.mision_thi.nbttooltips.commands.IgnoreNbtCommand;
 import net.mision_thi.nbttooltips.config.ConfigFile;
 import net.mision_thi.nbttooltips.config.ConfigSection;
@@ -47,6 +50,10 @@ public class NBTtooltipsMod implements ClientModInitializer {
 			dispatcher.register(ClientCommandManager.literal("command_with_common_exec")
 					.then(ClientCommandManager.argument("nbt", StringArgumentType.string()))
 					.executes(IgnoreNbtCommand::run));
+			dispatcher.register(ClientCommandManager.literal("copynpc").executes(CopyNpcCommand::run));
+			dispatcher.register(ClientCommandManager.literal("copyarmorstands")
+							.then(ClientCommandManager.argument("radius", IntegerArgumentType.integer()))
+					.executes(CopyArmorStandCommand::run));
 		});
     }
 
