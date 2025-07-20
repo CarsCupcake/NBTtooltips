@@ -47,6 +47,8 @@ public class CopyArmorStandCommand {
             obj.add("head", makeArm(armorStand.getHeadRotation()));
             obj.add("body", makeArm(armorStand.getBodyRotation()));
             obj.addProperty("invisible", armorStand.isInvisible());
+            obj.addProperty("marker", armorStand.isMarker());
+            obj.addProperty("arms", armorStand.shouldShowArms());
             var mainHandItemObj = new JsonObject();
             mainHandItemObj.addProperty("id", armorStand.getMainHandStack().getItem().getRegistryEntry().getIdAsString());
             mainHandItemObj.addProperty("glint", armorStand.getMainHandStack().hasGlint());
