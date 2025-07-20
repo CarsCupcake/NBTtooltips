@@ -61,17 +61,18 @@ public class CopyArmorStandCommand {
             var pos = new JsonObject();
             var playerPos = client.player.getPos();
             var rel = armorStand.getPos().subtract(playerPos);
-            makePos(pos, rel);
+            makePos(pos, rel, armorStand.getYaw(), armorStand.getPitch());
             obj.add("relativePos", pos);
-            var pPos = new JsonObject();
-            makePos(pPos, playerPos);
-            obj.add("playerPos", pPos);
             array.add(obj);
         }
-        assert client.player != null;
+        JsonObject obj = new JsonObject();
+        var pPos = new JsonObject();
+        makePos(pPos, client.player.getPos(), client.player.getYaw(), client.player.getPitch());
+        obj.add("playerPos", pPos);
+        obj.add("stands", array);
         client.player.sendMessage(Text.of("§aCopied " +  array.size() + " entities"), false);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        MinecraftClient.getInstance().keyboard.setClipboard(gson.toJson(array));
+        MinecraftClient.getInstance().keyboard.setClipboard(gson.toJson(obj));
         return 0;
     }
 
@@ -96,10 +97,12 @@ public class CopyArmorStandCommand {
         return object;
     }
 
-    private static void makePos(JsonObject object, Vec3d vec3d) {
+    private static void makePos(JsonObject object, Vec3d vec3d, float yaw, float pitch) {
         object.addProperty("x", vec3d.x);
         object.addProperty("y", vec3d.y);
         object.addProperty("z", vec3d.z);
+        object.addProperty("yaw", yaw);
+        object.addProperty("pitch", pitch);
     }
 
     private static JsonObject makeArm(EulerAngle angle) {
