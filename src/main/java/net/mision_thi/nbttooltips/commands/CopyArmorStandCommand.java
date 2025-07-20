@@ -81,15 +81,18 @@ public class CopyArmorStandCommand {
         object.addProperty("id", stack.getItem().getRegistryEntry().getIdAsString());
         object.addProperty("glint", stack.hasGlint());
         var nbt = (NbtCompound) ComponentChanges.CODEC.encodeStart(NBT_OPS_UNLIMITED, stack.getComponentChanges()).getOrThrow();
-        if (stack.getItem() == Items.PLAYER_HEAD) {
-            for (var n : Objects.requireNonNull(nbt.getList("properties").orElseGet(NbtList::new))) {
+        if (stack.getItem().getRegistryEntry().getIdAsString().equalsIgnoreCase("minecraft:player_head")) {
+            System.out.println(nbt);
+            System.out.println(nbt.getKeys());
+            System.out.println(nbt.get("minecraft:profile"));
+            System.out.println(nbt.get("profile"));
+            for (var n : Objects.requireNonNull(((NbtCompound) Objects.requireNonNull(nbt.get("minecraft:profile"))).getList("properties").orElseGet(NbtList::new))) {
                 var comp = (NbtCompound) n;
-                if (comp.get("name").equals("textures")) {
+                System.out.println(n);
                     JsonObject obj = new JsonObject();
                     obj.addProperty("value", comp.getString("value").orElse(null));
                     obj.addProperty("signature", comp.getString("signature").orElse(null));
                     object.add("textures", obj);
-                }
             }
         }
         var optionalColor = nbt.getInt("dyed_color");
