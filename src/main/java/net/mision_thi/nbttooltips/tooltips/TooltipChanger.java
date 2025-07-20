@@ -40,7 +40,7 @@ public class TooltipChanger {
     /**
      * for encoding unlimited data into NbtElement for getNBT methods
      */
-    private static final RegistryOps<NbtElement> NBT_OPS_UNLIMITED = RegistryOps.of(NbtOps.INSTANCE, new RegistryOps.RegistryInfoGetter() {
+    public static final RegistryOps<NbtElement> NBT_OPS_UNLIMITED = RegistryOps.of(NbtOps.INSTANCE, new RegistryOps.RegistryInfoGetter() {
         private final RegistryOps.RegistryInfo<?> INFO = new RegistryOps.RegistryInfo<>(ALL_EQUALITY_OWNER, null, null);
 
         @Override

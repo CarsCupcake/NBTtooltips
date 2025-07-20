@@ -4,19 +4,27 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.ComponentChanges;
+import net.minecraft.component.ComponentType;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.PlayerHeadItem;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.text.Text;
-import net.minecraft.util.Arm;
 import net.minecraft.util.math.EulerAngle;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Objects;
+
+import static net.mision_thi.nbttooltips.tooltips.TooltipChanger.NBT_OPS_UNLIMITED;
 
 public class CopyArmorStandCommand {
     public static int run(CommandContext<FabricClientCommandSource> commandContext) throws CommandSyntaxException {
@@ -42,26 +50,56 @@ public class CopyArmorStandCommand {
             var mainHandItemObj = new JsonObject();
             mainHandItemObj.addProperty("id", armorStand.getMainHandStack().getItem().getRegistryEntry().getIdAsString());
             mainHandItemObj.addProperty("glint", armorStand.getMainHandStack().hasGlint());
-            obj.add("mainHandItem", mainHandItemObj);
-            var subHandItemObj = new JsonObject();
-            subHandItemObj.addProperty("id", armorStand.getOffHandStack().getItem().getRegistryEntry().getIdAsString());
-            subHandItemObj.addProperty("glint", armorStand.getOffHandStack().hasGlint());
-            obj.add("offHandItem", subHandItemObj);
+            JsonObject equipment = new JsonObject();
+            equipment.add("mainHand", makeItem(armorStand.getMainHandStack()));
+            equipment.add("offHand", makeItem(armorStand.getOffHandStack()));
+            equipment.add("helmet", makeItem(armorStand.getEquippedStack(EquipmentSlot.HEAD)));
+            equipment.add("chestplate", makeItem(armorStand.getEquippedStack(EquipmentSlot.CHEST)));
+            equipment.add("leggings", makeItem(armorStand.getEquippedStack(EquipmentSlot.LEGS)));
+            equipment.add("boots", makeItem(armorStand.getEquippedStack(EquipmentSlot.FEET)));
+            obj.add("equipment", equipment);
             var pos = new JsonObject();
             var playerPos = client.player.getPos();
-            pos.addProperty("x", playerPos.x - armorStand.getX());
-            pos.addProperty("y", playerPos.y -armorStand.getY());
-            pos.addProperty("z", playerPos.z - armorStand.getZ());
+            var rel = armorStand.getPos().subtract(playerPos);
+            makePos(pos, rel);
             obj.add("relativePos", pos);
             var pPos = new JsonObject();
-            pPos.addProperty("x", playerPos.x);
-            pPos.addProperty("y", playerPos.y);
-            pPos.addProperty("z", playerPos.z);
+            makePos(pPos, playerPos);
             obj.add("playerPos", pPos);
+            array.add(obj);
         }
+        assert client.player != null;
+        client.player.sendMessage(Text.of("§aCopied " +  array.size() + " entities"), false);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         MinecraftClient.getInstance().keyboard.setClipboard(gson.toJson(array));
         return 0;
+    }
+
+    private static JsonObject makeItem(ItemStack stack) {
+        JsonObject object = new JsonObject();
+        object.addProperty("id", stack.getItem().getRegistryEntry().getIdAsString());
+        object.addProperty("glint", stack.hasGlint());
+        var nbt = (NbtCompound) ComponentChanges.CODEC.encodeStart(NBT_OPS_UNLIMITED, stack.getComponentChanges()).getOrThrow();
+        if (stack.getItem() == Items.PLAYER_HEAD) {
+            for (var n : Objects.requireNonNull(nbt.getList("properties").orElseGet(NbtList::new))) {
+                var comp = (NbtCompound) n;
+                if (comp.get("name").equals("textures")) {
+                    JsonObject obj = new JsonObject();
+                    obj.addProperty("value", comp.getString("value").orElse(null));
+                    obj.addProperty("signature", comp.getString("signature").orElse(null));
+                    object.add("textures", obj);
+                }
+            }
+        }
+        var optionalColor = nbt.getInt("dyed_color");
+        optionalColor.ifPresent(integer -> object.addProperty("color", integer));
+        return object;
+    }
+
+    private static void makePos(JsonObject object, Vec3d vec3d) {
+        object.addProperty("x", vec3d.x);
+        object.addProperty("y", vec3d.y);
+        object.addProperty("z", vec3d.z);
     }
 
     private static JsonObject makeArm(EulerAngle angle) {

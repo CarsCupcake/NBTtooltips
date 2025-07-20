@@ -52,8 +52,7 @@ public class NBTtooltipsMod implements ClientModInitializer {
 					.executes(IgnoreNbtCommand::run));
 			dispatcher.register(ClientCommandManager.literal("copynpc").executes(CopyNpcCommand::run));
 			dispatcher.register(ClientCommandManager.literal("copyarmorstands")
-							.then(ClientCommandManager.argument("radius", IntegerArgumentType.integer()))
-					.executes(CopyArmorStandCommand::run));
+							.then(ClientCommandManager.argument("radius", IntegerArgumentType.integer()).executes(CopyArmorStandCommand::run)));
 		});
     }
 
