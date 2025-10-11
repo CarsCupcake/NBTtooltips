@@ -72,6 +72,7 @@ public class TooltipChanger {
         list.addAll(index, builder.build());
         int code = InputUtil.fromTranslationKey(NBTtooltipsMod.KEYBIND_COPY.getBoundKeyTranslationKey()).getCode();
         if (InputUtil.isKeyPressed(client.getWindow().getHandle(), code)) {
+            MinecraftClient.getInstance().player.sendMessage(Text.literal("Try to copy"), false);
             StringBuilder stringBuilder = new StringBuilder();
             for (var single : list) {
                     stringBuilder.append(single.getString()).append("\r\n");
@@ -81,7 +82,6 @@ public class TooltipChanger {
                 lastCopied = out;
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(new StringSelection(out), null);
-                assert MinecraftClient.getInstance().player != null;
                 MinecraftClient.getInstance().player.sendMessage(Text.literal("§aCopied to clipboard!"), false);
             }
         }
