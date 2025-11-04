@@ -7,7 +7,8 @@
   ],
   "client": [
     "mision_thi_TooltipChanger",
-    "MixinRegistryEntryReference"
+    "MixinRegistryEntryReference",
+    "EntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
